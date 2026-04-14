@@ -81,12 +81,13 @@ public static class RunFactory
             .Select(_ => GenerateOneAbility(rng, forcedAbility))
             .ToList();
 
-        // Stat blocks: level = 8 + chapter, distribute across Res/Int/Cha
+        // Stat blocks: level = 8 + chapter, distribute across Res/Int/Cha (min 1 each), Endurance = 1
         var level = 8 + chapter;
         var stats = Enumerable.Range(0, 3).Select(_ =>
         {
-            var dist = rng.DistributePoints(level, 3);
-            return new StatBlock(dist[0], dist[1], dist[2], 0);
+            // Reserve 1 point per stat so no stat is 0, then distribute the rest randomly
+            var dist = rng.DistributePoints(level - 3, 3);
+            return new StatBlock(dist[0] + 1, dist[1] + 1, dist[2] + 1, 1);
         }).ToList();
 
         // Traits: 3 options (1 = no trait option)
@@ -205,29 +206,29 @@ public static class RunFactory
 
     static StatBlock ApplyTraitStats(StatBlock s, TraitEffectType t) => t switch
     {
-        TraitEffectType.PlusTwoIntMinusOneCha => s with { Intelligence = s.Intelligence + 2, Charisma = Math.Max(0, s.Charisma - 1) },
-        TraitEffectType.PlusTwoChaMinusOneInt => s with { Charisma = s.Charisma + 2, Intelligence = Math.Max(0, s.Intelligence - 1) },
-        TraitEffectType.PlusTwoResMinusOneInt => s with { Resolve = s.Resolve + 2, Intelligence = Math.Max(0, s.Intelligence - 1) },
-        TraitEffectType.PlusTwoIntMinusOneRes => s with { Intelligence = s.Intelligence + 2, Resolve = Math.Max(0, s.Resolve - 1) },
-        TraitEffectType.PlusTwoChaMinusOneRes => s with { Charisma = s.Charisma + 2, Resolve = Math.Max(0, s.Resolve - 1) },
-        TraitEffectType.PlusTwoResMinusOneCha => s with { Resolve = s.Resolve + 2, Charisma = Math.Max(0, s.Charisma - 1) },
+        TraitEffectType.PlusTwoIntMinusOneCha => s with { Intelligence = s.Intelligence + 2, Charisma = Math.Max(1, s.Charisma - 1) },
+        TraitEffectType.PlusTwoChaMinusOneInt => s with { Charisma = s.Charisma + 2, Intelligence = Math.Max(1, s.Intelligence - 1) },
+        TraitEffectType.PlusTwoResMinusOneInt => s with { Resolve = s.Resolve + 2, Intelligence = Math.Max(1, s.Intelligence - 1) },
+        TraitEffectType.PlusTwoIntMinusOneRes => s with { Intelligence = s.Intelligence + 2, Resolve = Math.Max(1, s.Resolve - 1) },
+        TraitEffectType.PlusTwoChaMinusOneRes => s with { Charisma = s.Charisma + 2, Resolve = Math.Max(1, s.Resolve - 1) },
+        TraitEffectType.PlusTwoResMinusOneCha => s with { Resolve = s.Resolve + 2, Charisma = Math.Max(1, s.Charisma - 1) },
         TraitEffectType.PlusOneInt => s with { Intelligence = s.Intelligence + 1 },
         TraitEffectType.PlusOneCha => s with { Charisma = s.Charisma + 1 },
         TraitEffectType.PlusOneRes => s with { Resolve = s.Resolve + 1 },
         TraitEffectType.PlusOneEndNoBoosted => s with { Endurance = s.Endurance + 1 },
-        TraitEffectType.PlusFiveResMinusOneEnd => s with { Resolve = s.Resolve + 5, Endurance = Math.Max(0, s.Endurance - 1) },
+        TraitEffectType.PlusFiveResMinusOneEnd => s with { Resolve = s.Resolve + 5, Endurance = Math.Max(1, s.Endurance - 1) },
         TraitEffectType.PlusTwoResTwentyFivePanic => s with { Resolve = s.Resolve + 2 },
-        TraitEffectType.PlusOneEndMinusThreeRes => s with { Endurance = s.Endurance + 1, Resolve = Math.Max(0, s.Resolve - 3) },
+        TraitEffectType.PlusOneEndMinusThreeRes => s with { Endurance = s.Endurance + 1, Resolve = Math.Max(1, s.Resolve - 3) },
         TraitEffectType.PlusTwoResRandomizeEffect => s with { Resolve = s.Resolve + 2 },
         _ => s
     };
 
     static StatBlock ApplyNegativeTraitStats(StatBlock s, NegativeTraitEffectType t) => t switch
     {
-        NegativeTraitEffectType.MinusOneRes => s with { Resolve = Math.Max(0, s.Resolve - 1) },
-        NegativeTraitEffectType.MinusOneCha => s with { Charisma = Math.Max(0, s.Charisma - 1) },
-        NegativeTraitEffectType.MinusOneInt => s with { Intelligence = Math.Max(0, s.Intelligence - 1) },
-        NegativeTraitEffectType.MinusOneEndPlusTwoRes => s with { Endurance = Math.Max(0, s.Endurance - 1), Resolve = s.Resolve + 2 },
+        NegativeTraitEffectType.MinusOneRes => s with { Resolve = Math.Max(1, s.Resolve - 1) },
+        NegativeTraitEffectType.MinusOneCha => s with { Charisma = Math.Max(1, s.Charisma - 1) },
+        NegativeTraitEffectType.MinusOneInt => s with { Intelligence = Math.Max(1, s.Intelligence - 1) },
+        NegativeTraitEffectType.MinusOneEndPlusTwoRes => s with { Endurance = Math.Max(1, s.Endurance - 1), Resolve = s.Resolve + 2 },
         _ => s
     };
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { LeftPageRender, RightPageRender, CrewRender, FormationRender, PlayerAction } from '../api/types';
 import styles from './LeftPage.module.css';
 
@@ -84,9 +85,10 @@ export function LeftPage({ left }: Props) {
         <Section title="Mod Storage">
           <div className={styles.modList}>
             {left.modStorage.map(m => (
-              <div key={m.instanceId} className={`${styles.modItem} ${m.isGlitch ? styles.glitch : ''}`} title={m.description}>
+              <div key={m.instanceId} className={`${styles.modItem} ${m.isGlitch ? styles.glitch : ''}`}>
                 <span className={styles.modName}>{m.name}</span>
                 <span className={styles.modSize}>{'SMl'[m.size]}</span>
+                <InfoBtn text={m.description} />
               </div>
             ))}
           </div>
@@ -126,6 +128,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+function InfoBtn({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button className={styles.infoBtn} onClick={() => setOpen(o => !o)}>i</button>
+      {open && <div className={styles.infoExpand}>{text}</div>}
+    </>
+  );
+}
+
 function CrewCard({ crew }: { crew: CrewRender }) {
   const ability = crew.abilities[0];
   const fatigueUsed = crew.fatigueBaseline;
@@ -138,38 +150,37 @@ function CrewCard({ crew }: { crew: CrewRender }) {
         <span className={styles.crewRace}>{crew.raceName}</span>
       </div>
       <div className={styles.crewStats}>
-        <span title="Resolve">Res {crew.stats.resolve}</span>
-        <span title="Intelligence">Int {crew.stats.intelligence}</span>
-        <span title="Charisma">Cha {crew.stats.charisma}</span>
-        <span title="Endurance">End {crew.stats.endurance}</span>
+        <span>Res {crew.stats.resolve}</span>
+        <span>Int {crew.stats.intelligence}</span>
+        <span>Cha {crew.stats.charisma}</span>
+        <span>End {crew.stats.endurance}</span>
       </div>
       <div className={styles.crewBottom}>
-        <span className={styles.crewHp}>
-          HP {crew.hpCurrent}/{crew.hpMax}
-        </span>
+        <span className={styles.crewHp}>HP {crew.hpCurrent}/{crew.hpMax}</span>
         {ability && (
           <span className={`${styles.crewAbility} ${styles[`ability${ability.typeName}`]}`}>
             {ability.isDual ? '×½ ' : ''}{ability.typeName}
+            <InfoBtn text={ability.displayText} />
           </span>
         )}
-        <span className={`${styles.crewEl} ${isExhausted ? styles.exhausted : ''}`} title="Effect Level">
+        <span className={`${styles.crewEl} ${isExhausted ? styles.exhausted : ''}`}>
           EL {crew.effectiveEffectLevel}
         </span>
         {fatigueUsed > 0 && (
-          <span className={styles.crewFatigue}>
-            Fat {fatigueUsed}/{crew.stats.endurance}
-          </span>
+          <span className={styles.crewFatigue}>Fat {fatigueUsed}/{crew.stats.endurance}</span>
         )}
       </div>
       {crew.traits.length > 0 && (
         <div className={styles.crewTraits}>
           {crew.traits.map(t => (
-            <span key={t.id} className={`${styles.traitPill} ${t.isNegative ? styles.traitNeg : styles.traitPos}`} title={t.description}>
+            <span key={t.id} className={`${styles.traitPill} ${t.isNegative ? styles.traitNeg : styles.traitPos}`}>
               {t.name}
+              <InfoBtn text={t.description} />
             </span>
           ))}
         </div>
       )}
+      {crew.backstory && <div className={styles.crewBackstory}>{crew.backstory}</div>}
       {crew.isDead && <div className={styles.deadBanner}>DEAD</div>}
       {crew.isPanicked && <div className={styles.panicBanner}>PANICKED</div>}
     </div>
@@ -217,8 +228,9 @@ function SystemCard({ sys }: { sys: { name: string; level: number; modSlots: num
       {sys.installedMods.length > 0 && (
         <div className={styles.systemMods}>
           {sys.installedMods.map(m => (
-            <span key={m.instanceId} className={`${styles.modDot} ${m.isGlitch ? styles.glitchDot : ''}`} title={`${m.name}: ${m.description}`}>
-              {m.name.substring(0, 10)}
+            <span key={m.instanceId} className={`${styles.modDot} ${m.isGlitch ? styles.glitchDot : ''}`}>
+              {m.name.substring(0, 12)}
+              <InfoBtn text={`${m.name}: ${m.description}`} />
             </span>
           ))}
         </div>

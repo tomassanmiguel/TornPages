@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { PrologueCrewRight, PlayerAction } from '../../api/types';
 import { PrologueCrewAttrAction, ConfirmPrologueCrewAction } from '../../api/types';
 import styles from './shared.module.css';
@@ -17,6 +18,14 @@ const ABILITY_COLORS: Record<string, string> = {
 export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
   const opts = page.options;
   const sel = page.selections;
+  const [expandedTrait, setExpandedTrait] = useState<number | null>(null);
+
+  // Ability is always the forced type — auto-select index 0 silently
+  useEffect(() => {
+    if (!page.isCommitted_ && (sel === null || sel.abilityIndex < 0)) {
+      dispatch(PrologueCrewAttrAction('ability', 0));
+    }
+  }, [page.crewIndex]); // re-run for each new crew page
 
   if (page.isCommitted_) {
     return (
@@ -27,21 +36,25 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
     );
   }
 
-  const allSelected = sel &&
+  const allSelected = sel !== null &&
     sel.nameIndex >= 0 && sel.raceIndex >= 0 && sel.backstoryIndex >= 0 &&
-    sel.abilityIndex >= 0 && sel.statIndex >= 0 && sel.traitIndex >= 0;
+    sel.statIndex >= 0 && sel.traitIndex >= 0;
+  // abilityIndex will be set by useEffect — don't gate on it
+
+  const abilityColor = ABILITY_COLORS[page.targetAbility] ?? '#888';
 
   return (
     <div className={styles.page}>
       <div className={styles.pageTitle}>
-        Choose Crew Member {page.crewIndex + 1}
-        <span style={{ color: ABILITY_COLORS[page.targetAbility] ?? '#888', fontSize: '0.85rem', marginLeft: '0.5rem' }}>
-          ({page.targetAbility})
+        Crew Member {page.crewIndex + 1}
+        <span style={{ color: abilityColor, fontSize: '0.85rem', marginLeft: '0.5rem' }}>
+          [{page.targetAbility}]
         </span>
       </div>
       <p className={styles.pageSubtitle}>Select one option for each attribute.</p>
 
-      <AttrSection title="Name" count={opts.nameOptions.length}>
+      {/* Name */}
+      <AttrSection title="Name">
         {opts.nameOptions.map((n, i) => (
           <button
             key={i}
@@ -54,7 +67,8 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
         ))}
       </AttrSection>
 
-      <AttrSection title="Race" count={opts.raceOptions.length}>
+      {/* Race */}
+      <AttrSection title="Race">
         {opts.raceOptions.map((r, i) => (
           <button
             key={i}
@@ -67,7 +81,8 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
         ))}
       </AttrSection>
 
-      <AttrSection title="Backstory" count={opts.backstoryOptions.length}>
+      {/* Backstory */}
+      <AttrSection title="Backstory">
         {opts.backstoryOptions.map((b, i) => (
           <button
             key={i}
@@ -80,7 +95,8 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
         ))}
       </AttrSection>
 
-      <AttrSection title="Stats" count={opts.statOptions.length}>
+      {/* Stats */}
+      <AttrSection title="Stats">
         {opts.statOptions.map((s, i) => (
           <button
             key={i}
@@ -98,43 +114,45 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
         ))}
       </AttrSection>
 
-      <AttrSection title="Ability" count={opts.abilityOptions.length}>
-        {opts.abilityOptions.map((a, i) => (
-          <button
-            key={i}
-            className={`${styles.optionCard} ${sel?.abilityIndex === i ? styles.selected : ''}`}
-            onClick={() => dispatch(PrologueCrewAttrAction('ability', i))}
-            disabled={disabled}
-          >
-            <span style={{ color: ABILITY_COLORS[a.type] ?? '#888' }}>{a.type}</span>
-            {a.rarity === 1 && (
-              <span style={{ color: 'var(--orange)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>[Rare]</span>
+      {/* Trait */}
+      <AttrSection title="Trait">
+        {opts.traitOptions.map((t, i) => (
+          <div key={i}>
+            <button
+              className={`${styles.optionCard} ${sel?.traitIndex === i ? styles.selected : ''}`}
+              onClick={() => dispatch(PrologueCrewAttrAction('trait', i))}
+              disabled={disabled}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>
+                {t ? (
+                  <span style={{ color: t.isNegative ? 'var(--red)' : 'var(--green)' }}>{t.name}</span>
+                ) : (
+                  <span style={{ color: 'var(--text-muted)' }}>No trait</span>
+                )}
+              </span>
+              {t && (
+                <button
+                  className={styles.infoBtn}
+                  onClick={e => { e.stopPropagation(); setExpandedTrait(expandedTrait === i ? null : i); }}
+                >i</button>
+              )}
+            </button>
+            {t && expandedTrait === i && (
+              <div className={styles.infoExpand}>{t.description}</div>
             )}
-          </button>
+          </div>
         ))}
       </AttrSection>
 
-      <AttrSection title="Trait" count={opts.traitOptions.length}>
-        {opts.traitOptions.map((t, i) => (
-          <button
-            key={i}
-            className={`${styles.optionCard} ${sel?.traitIndex === i ? styles.selected : ''}`}
-            onClick={() => dispatch(PrologueCrewAttrAction('trait', i))}
-            disabled={disabled}
-          >
-            {t ? (
-              <>
-                <span style={{ color: t.isNegative ? 'var(--red)' : 'var(--green)' }}>{t.name}</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>
-                  {t.description.substring(0, 60)}
-                </span>
-              </>
-            ) : (
-              <span style={{ color: 'var(--text-muted)' }}>No trait</span>
-            )}
-          </button>
-        ))}
-      </AttrSection>
+      {/* Ability — auto-selected, shown as info only */}
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}>Ability</div>
+        <div className={styles.infoRow}>
+          <span style={{ color: abilityColor }}>{page.targetAbility}</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>auto-assigned</span>
+        </div>
+      </div>
 
       <div className={styles.actionRow}>
         <button
@@ -149,8 +167,7 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
   );
 }
 
-function AttrSection({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
-  void count;
+function AttrSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className={styles.section}>
       <div className={styles.sectionTitle}>{title}</div>

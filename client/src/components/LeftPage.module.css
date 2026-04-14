@@ -174,10 +174,51 @@
 }
 
 .traitPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
   font-size: 0.68rem;
   padding: 0.1em 0.4em;
   border-radius: 2px;
-  cursor: help;
+}
+
+.crewBackstory {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Info button / expand (mirrors shared.module.css but scoped here) */
+.infoBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-style: italic;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+.infoBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+.infoExpand {
+  margin-top: 0.2rem;
+  padding: 0.35rem 0.6rem;
+  background: #12121e;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.4;
 }
 
 .traitPos {
