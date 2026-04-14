@@ -43,15 +43,25 @@ TornPages/
 5. `dotnet sln add` all three projects; add Engine reference to Api and Tests
 6. `npm create vite@latest client -- --template react-ts` in `client/`
 
-### 1.2 Minimal API Surface
+### 1.2 API Surface
 
-Implement three endpoints only — these are the final API surface, not scaffolding:
+All game endpoints are scoped under a profile ID. This is the final API surface:
 
 ```
-GET  /state                     → RenderState (JSON)
-POST /action                    → PlayerAction (JSON body) → RenderState (JSON)
-GET  /history/{pageIndex}       → RenderState (JSON)
+GET  /profiles                              → list all profiles (id, name, hasActiveRun)
+POST /profiles                              → create profile → { profileId }
+DELETE /profiles/{profileId}               → delete profile and all its data
+
+GET  /profiles/{profileId}/state            → RenderState for this profile
+POST /profiles/{profileId}/action           → PlayerAction → RenderState
+GET  /profiles/{profileId}/history/{n}      → frozen RenderState for page n
 ```
+
+**Why profile-scoped URLs:** Multiple players can share the same hosted server simultaneously, each with independent run state and metaprogression. The client selects a profile at the main menu and includes the `profileId` in every subsequent request. No authentication — any client can access any profile by ID, which is intentional for this co-op/shared-machine use case.
+
+**Server-side profile storage:** Each profile is a JSON file at `profiles/{profileId}.json` on the server. The API maintains a `Dictionary<string, TornPagesEngine>` in memory, loading from disk on first access and auto-saving after every committed action. Profile IDs are GUIDs generated at creation.
+
+**Client-side:** Selected `profileId` stored in `localStorage`. On load, if no profile is stored or the stored ID no longer exists on the server, redirect to profile selection screen.
 
 For Phase 1, stub the engine with a trivial "ping-pong" run:
 - `GET /state` returns a hardcoded `RenderState` with a `message` field
@@ -1546,14 +1556,15 @@ Phase 3 (testing infrastructure)
 
 ---
 
-## Decisions to Make Before Starting Phase 2
+## Decisions Resolved Before Phase 2
 
-These are explicit open questions that need a call before implementation begins — not design gaps, just choices the implementation spec leaves open:
+1. **Hosting:** C# API runs locally, exposed via Cloudflare Tunnel at `api.torn-pages.com`. React client on Vercel at `torn-pages.vercel.app`. ✓
 
-1. **Hosting provider for Phase 1:** Railway vs. Azure App Service vs. Fly.io. Suggest Railway for zero-ops Docker simplicity.
-2. **Persistent storage for profiles/high scores:** `localStorage` (client-only, no backend needed) vs. a lightweight file on the server. For prototype purposes, `localStorage` is sufficient and avoids auth complexity.
-3. **Session management:** Is a "run" per-browser-tab, or does the API need a session concept? For single-player prototype, one active run per API instance is fine. Multi-session requires a session ID in the API.
-4. **Difficulty at launch:** Phase 1 ships Difficulty 0 only. Gating is correct.
+2. **Profile/save storage:** Server-side JSON files (`profiles/{profileId}.json`). Not `localStorage` — full server-side persistence means state survives browser changes and is accessible from any device hitting the tunnel. ✓
+
+3. **Session/profile management:** Full profile-scoped API (see §1.2). Each player picks a profile at the main menu; all subsequent requests include that profile's GUID. The server maintains one `TornPagesEngine` instance per active profile in memory, backed by disk. Multiple players can use the server simultaneously with independent state. ✓
+
+4. **Difficulty at launch:** Difficulty 0 only for Phase 2. ✓
 
 ---
 

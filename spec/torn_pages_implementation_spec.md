@@ -41,16 +41,29 @@
 - **Frontend (React + TypeScript):** A web application that communicates with the headless engine via a thin HTTP or in-process API. It reads state, renders UI, and submits player actions. It contains no game logic.
 
 ### API Bridge
-The C# engine is hosted as a local ASP.NET Core minimal API. The React frontend communicates with it over HTTP (localhost in dev, public hosting later for playtesting). The API exposes a small set of endpoints:
-- `GET /state` — returns the full current `RenderState` (everything the UI needs to draw the current page)
-- `POST /action` — submits a player action by name + payload; engine validates, applies, and returns updated `RenderState`
-- `GET /history/{pageIndex}` — returns the frozen `RenderState` for a historical page
+The C# engine is hosted as a local ASP.NET Core minimal API. The React frontend communicates with it over HTTP. All endpoints are scoped by profile ID so multiple players can use the server simultaneously with independent state.
+
+**Profile management:**
+- `GET /profiles` — list all profiles `[{ profileId, name, hasActiveRun }]`
+- `POST /profiles` — create a new profile → `{ profileId }`
+- `DELETE /profiles/{profileId}` — delete profile and all its saved data
+
+**Per-profile game endpoints:**
+- `GET /profiles/{profileId}/state` — returns the full current `RenderState` for this profile
+- `POST /profiles/{profileId}/action` — submits a `PlayerAction`; engine validates, applies, returns updated `RenderState`
+- `GET /profiles/{profileId}/history/{pageIndex}` — returns the frozen `RenderState` for a historical page
 
 All communication is JSON. The engine must never accept illegal moves — every action endpoint validates preconditions and returns a structured error if invalid.
 
+**Server-side profile storage:** Each profile is persisted as a JSON file at `profiles/{profileId}.json` relative to the server binary. The API keeps a `Dictionary<string, TornPagesEngine>` in memory, loading from disk on first access and auto-saving after every committed action. Profile IDs are GUIDs.
+
+**Client-side:** The selected `profileId` is stored in `localStorage`. On load, if no profile is stored or the stored ID no longer exists on the server, the client redirects to the profile selection screen.
+
+**No authentication.** Any client that knows a profile ID can access it. This is intentional — the game is designed for shared-machine or small-group play.
+
 ### Target Environments
-- Dev: engine hosted locally on developer machine; React dev server connects to it
-- Playtest: React app hosted publicly (e.g. Vercel/Netlify); engine hosted on a cloud instance or developer machine exposed via ngrok
+- Dev: engine hosted locally on developer machine; React dev server at `localhost:5173` connects to `localhost:5000`
+- Playtest: React app on Vercel (`torn-pages.vercel.app`); engine runs locally exposed via Cloudflare Tunnel (`api.torn-pages.com`)
 
 ---
 
