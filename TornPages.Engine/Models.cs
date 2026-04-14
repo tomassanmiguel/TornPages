@@ -18,3 +18,12 @@ public record PlayerAction(
     string ActionType,
     Dictionary<string, string>? Payload = null
 );
+
+/// <summary>
+/// A single entry in the server-side ping log.
+/// </summary>
+public record PingLogEntry(
+    int Index,
+    DateTimeOffset Timestamp,
+    string? Note = null
+);

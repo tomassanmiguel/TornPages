@@ -8,6 +8,7 @@ namespace TornPages.Engine;
 public class TornPagesEngine
 {
     private int _pingCount = 0;
+    private readonly List<PingLogEntry> _pingLog = [];
 
     public RenderState GetState()
     {
@@ -23,6 +24,11 @@ public class TornPagesEngine
         if (action.ActionType == "Ping")
         {
             _pingCount++;
+            _pingLog.Add(new PingLogEntry(
+                Index: _pingCount,
+                Timestamp: DateTimeOffset.UtcNow,
+                Note: action.Payload?.GetValueOrDefault("note")
+            ));
             return new RenderState(
                 Message: $"Pong! Server has received {_pingCount} ping(s).",
                 PingCount: _pingCount,
@@ -32,6 +38,8 @@ public class TornPagesEngine
 
         throw new EngineException($"Unknown action type: {action.ActionType}");
     }
+
+    public IReadOnlyList<PingLogEntry> GetPingLog() => _pingLog.AsReadOnly();
 
     public RenderState GetHistoricalState(int pageIndex)
     {
