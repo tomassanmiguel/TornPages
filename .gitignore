@@ -1,0 +1,29 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.log
+launchSettings.json
+
+# .NET secrets
+appsettings.Development.json
+
+# Test results
+TestResults/
+*.trx
+*.coveragexml
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# Node / React
+client/node_modules/
+client/dist/
+client/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
