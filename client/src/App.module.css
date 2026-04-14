@@ -1,0 +1,177 @@
+.page {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  letter-spacing: 0.1em;
+  color: #e8dcc8;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a7a6a;
+  margin-top: 0.25rem;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Big latency display */
+.latencyCard {
+  background: #252018;
+  border: 1px solid #3a3028;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.latencyMs {
+  font-size: 4rem;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.latencyLabel {
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.serverMessage {
+  font-size: 0.85rem;
+  color: #8a7a6a;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Stats row */
+.statsRow {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.stat {
+  background: #252018;
+  border: 1px solid #3a3028;
+  border-radius: 6px;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 80px;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #8a7a6a;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-family: 'Courier New', monospace;
+  color: #e8dcc8;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.pingButton,
+.copyButton {
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  border: none;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.pingButton:active,
+.copyButton:active {
+  transform: scale(0.97);
+}
+
+.pingButton:disabled,
+.copyButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pingButton {
+  background: #c4a96a;
+  color: #1a1612;
+  font-weight: bold;
+}
+
+.pingButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.copyButton {
+  background: #3a3028;
+  color: #e8dcc8;
+  border: 1px solid #5a4a38;
+}
+
+.copyButton:hover:not(:disabled) {
+  background: #4a3f30;
+}
+
+/* History table */
+.history {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.history th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: #8a7a6a;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border-bottom: 1px solid #3a3028;
+}
+
+.history td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #252018;
+  color: #c8bca8;
+}
+
+.history tr:first-child td {
+  color: #e8dcc8;
+}

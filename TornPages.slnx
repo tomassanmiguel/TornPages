@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="TornPages.Api/TornPages.Api.csproj" />
+  <Project Path="TornPages.Engine.Tests/TornPages.Engine.Tests.csproj" />
+  <Project Path="TornPages.Engine/TornPages.Engine.csproj" />
+</Solution>
