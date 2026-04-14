@@ -1,6 +1,8 @@
 import type { RenderState, PlayerAction, ProfileSummary } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+// Empty string = relative URLs proxied by Vite in dev, or same-origin in prod.
+// Set VITE_API_URL to override (e.g. for a remote API server).
+const API_URL = import.meta.env.VITE_API_URL ?? '';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
