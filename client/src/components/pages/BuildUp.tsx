@@ -31,7 +31,7 @@ export function BuildUpPage({ page, dispatch, disabled }: Props) {
         Select events to build Dramatic Tension before the battle. Need at least {page.dtThreshold} DT.
       </p>
 
-      <div className={bStyles.dtBar}>
+      <div className={bStyles.dtBar} data-tooltip="Dramatic Tension — must reach the threshold before you can ready up for combat. Higher DT = harder events but better rewards.">
         <span className={bStyles.dtLabel}>DT:</span>
         <span className={bStyles.dtValue} style={{ color: page.totalDT >= page.dtThreshold ? 'var(--green)' : 'var(--red)' }}>
           {page.totalDT}
@@ -101,11 +101,14 @@ function EventCard({ evt, selected, onToggle, disabled }: {
 }) {
   const dtKey = Math.min(5, Math.max(-2, evt.dramaticTension));
   const dtColor = DT_COLORS[dtKey] ?? '#888';
+  const tooltip = `${evt.effectSummary}${!evt.tearingAllowed ? '\n[no tear]' : ''}`;
+
   return (
     <button
       className={`${styles.optionCard} ${selected ? styles.selected : ''}`}
       onClick={onToggle}
       disabled={disabled}
+      data-tooltip={tooltip}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <span style={{ color: 'var(--accent)' }}>{evt.name}</span>

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { api } from './api/client';
 import { Game } from './components/Game';
+import { TooltipLayer } from './components/TooltipLayer';
 import type { ProfileSummary } from './api/types';
 import styles from './App.module.css';
 
@@ -40,14 +41,19 @@ export default function App() {
 
   if (activeProfileId) {
     return (
-      <Game
-        profileId={activeProfileId}
-        onExit={() => { setActiveProfileId(null); loadProfiles(); }}
-      />
+      <>
+        <TooltipLayer />
+        <Game
+          profileId={activeProfileId}
+          onExit={() => { setActiveProfileId(null); loadProfiles(); }}
+        />
+      </>
     );
   }
 
   return (
+    <>
+    <TooltipLayer />
     <div className={styles.menuPage}>
       <div className={styles.menuBox}>
         <h1 className={styles.menuTitle}>Torn Pages</h1>
@@ -110,5 +116,6 @@ export default function App() {
         )}
       </div>
     </div>
+    </>
   );
 }

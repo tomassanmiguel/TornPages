@@ -57,7 +57,7 @@ export function CombatPage({ page, left, dispatch, disabled }: Props) {
             </span>
           )}
         </div>
-        <div className={cStyles.chargeBar}>
+        <div className={cStyles.chargeBar} data-tooltip="Charge accumulated / threshold. Reaching the threshold triggers a special ability.">
           <span className={cStyles.chargeLabel}>Charge</span>
           <span className={cStyles.chargeValue}>{page.chargeAccumulated}</span>
           <span style={{ color: 'var(--text-muted)' }}>/{page.chargeThreshold}</span>
@@ -250,7 +250,8 @@ export function CombatPage({ page, left, dispatch, disabled }: Props) {
       {/* Actions */}
       <div className={styles.actionRow}>
         {page.awaitingReadyUp ? (
-          <button className={styles.primaryBtn} onClick={() => dispatch(ReadyUpAction())} disabled={disabled}>
+          <button className={styles.primaryBtn} onClick={() => dispatch(ReadyUpAction())} disabled={disabled}
+            data-tooltip="Resolve this combat page — apply all crew outputs and enemy attack">
             Resolve Page →
           </button>
         ) : (
@@ -258,11 +259,12 @@ export function CombatPage({ page, left, dispatch, disabled }: Props) {
             className={styles.primaryBtn}
             onClick={() => dispatch(ReadyUpAction())}
             disabled={disabled || !page.activeFormationId}
-          >
+            data-tooltip="Lock in your crew placement and resolve the page">
             Ready Up
           </button>
         )}
-        <button className={styles.secondaryBtn} onClick={() => dispatch(TearAction())} disabled={disabled}>
+        <button className={styles.secondaryBtn} onClick={() => dispatch(TearAction())} disabled={disabled}
+          data-tooltip="Tear this page — discard it and draw a new combat page. Costs 1 page.">
           Tear Page
         </button>
       </div>
@@ -310,11 +312,11 @@ function LaneColumn({ lane, selectedCrewId, onSlot, onUnslot, disabled }: {
       <div className={cStyles.laneName}>{lane.name}</div>
       {/* Lane stats */}
       <div className={cStyles.laneStats}>
-        {lane.lockOn > 0 && <span style={{ color: 'var(--orange)' }}>LockOn {lane.lockOn}</span>}
-        {lane.burnStacks > 0 && <span style={{ color: 'var(--red)' }}>Burn {lane.burnStacks}</span>}
-        {lane.barrierStacks > 0 && <span style={{ color: 'var(--accent2)' }}>Barrier {lane.barrierStacks}</span>}
-        {lane.fusionStacks > 0 && <span style={{ color: 'var(--purple)' }}>Fusion {lane.fusionStacks}</span>}
-        {lane.threat > 0 && <span style={{ color: 'var(--red)', fontWeight: 'bold' }}>⚠ Threat {lane.threat}</span>}
+        {lane.lockOn > 0 && <span style={{ color: 'var(--orange)' }} data-tooltip="Lock-On: adds this much threat to this lane each page">LockOn {lane.lockOn}</span>}
+        {lane.burnStacks > 0 && <span style={{ color: 'var(--red)' }} data-tooltip="Burn: this many points of threat cannot be shielded">Burn {lane.burnStacks}</span>}
+        {lane.barrierStacks > 0 && <span style={{ color: 'var(--accent2)' }} data-tooltip="Barrier: blocks this much incoming threat before shield is applied">Barrier {lane.barrierStacks}</span>}
+        {lane.fusionStacks > 0 && <span style={{ color: 'var(--purple)' }} data-tooltip="Fusion: amplifies charge gain from this lane">Fusion {lane.fusionStacks}</span>}
+        {lane.threat > 0 && <span style={{ color: 'var(--red)', fontWeight: 'bold' }} data-tooltip="Threat this page — unblocked threat becomes hull damage">⚠ Threat {lane.threat}</span>}
       </div>
       {lane.slots.map(slot => (
         <SlotCell
@@ -339,10 +341,13 @@ function SlotCell({ slot, canPlace, onSlot, onUnslot, disabled }: {
 }) {
   const slotColor = SLOT_COLORS[slot.typeName] ?? '#666';
 
+  const slotTooltip = `${slot.typeName} slot — lanes: [${slot.connectedLanes.join(', ')}]${slot.isDouble ? ' (×2 output)' : ''}${slot.forecastText ? '\nForecast: ' + slot.forecastText : ''}`;
+
   return (
     <div
       className={`${cStyles.slotCell} ${canPlace && !disabled ? cStyles.slotPlaceable : ''} ${slot.slottedCrewId ? cStyles.slotFilled : ''}`}
       style={{ borderColor: slotColor }}
+      data-tooltip={slotTooltip}
       onClick={() => {
         if (disabled) return;
         if (canPlace) onSlot();

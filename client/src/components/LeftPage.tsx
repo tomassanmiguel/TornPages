@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { LeftPageRender, RightPageRender, CrewRender, FormationRender, PlayerAction } from '../api/types';
 import styles from './LeftPage.module.css';
 
@@ -85,10 +84,11 @@ export function LeftPage({ left }: Props) {
         <Section title="Mod Storage">
           <div className={styles.modList}>
             {left.modStorage.map(m => (
-              <div key={m.instanceId} className={`${styles.modItem} ${m.isGlitch ? styles.glitch : ''}`}>
+              <div key={m.instanceId}
+                className={`${styles.modItem} ${m.isGlitch ? styles.glitch : ''}`}
+                data-tooltip={`${m.name} [${['S','M','L'][m.size]}]${m.isGlitch ? ' ⚠ Glitch' : ''}\n${m.description}`}>
                 <span className={styles.modName}>{m.name}</span>
                 <span className={styles.modSize}>{'SMl'[m.size]}</span>
-                <InfoBtn text={m.description} />
               </div>
             ))}
           </div>
@@ -128,15 +128,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function InfoBtn({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <button className={styles.infoBtn} onClick={() => setOpen(o => !o)}>i</button>
-      {open && <div className={styles.infoExpand}>{text}</div>}
-    </>
-  );
-}
 
 function CrewCard({ crew }: { crew: CrewRender }) {
   const ability = crew.abilities[0];
@@ -150,37 +141,42 @@ function CrewCard({ crew }: { crew: CrewRender }) {
         <span className={styles.crewRace}>{crew.raceName}</span>
       </div>
       <div className={styles.crewStats}>
-        <span>Res {crew.stats.resolve}</span>
-        <span>Int {crew.stats.intelligence}</span>
-        <span>Cha {crew.stats.charisma}</span>
-        <span>End {crew.stats.endurance}</span>
+        <span data-tooltip="Resolve — drives Shield ability output">Res {crew.stats.resolve}</span>
+        <span data-tooltip="Intelligence — drives Hack ability output">Int {crew.stats.intelligence}</span>
+        <span data-tooltip="Charisma — drives Boost/Barrier/Heal output">Cha {crew.stats.charisma}</span>
+        <span data-tooltip="Endurance — how many times this crew can slot per page before exhaustion">End {crew.stats.endurance}</span>
       </div>
       <div className={styles.crewBottom}>
-        <span className={styles.crewHp}>HP {crew.hpCurrent}/{crew.hpMax}</span>
+        <span className={styles.crewHp} data-tooltip="Current / max HP. Crew die at 0 HP.">HP {crew.hpCurrent}/{crew.hpMax}</span>
         {ability && (
-          <span className={`${styles.crewAbility} ${styles[`ability${ability.typeName}`]}`}>
+          <span className={`${styles.crewAbility} ${styles[`ability${ability.typeName}`]}`}
+            data-tooltip={ability.displayText}>
             {ability.isDual ? '×½ ' : ''}{ability.typeName}
-            <InfoBtn text={ability.displayText} />
           </span>
         )}
-        <span className={`${styles.crewEl} ${isExhausted ? styles.exhausted : ''}`}>
+        <span className={`${styles.crewEl} ${isExhausted ? styles.exhausted : ''}`}
+          data-tooltip={`Effect Level ${crew.effectiveEffectLevel} — multiplied by stat to determine output. Increases with crew XP and bonuses.`}>
           EL {crew.effectiveEffectLevel}
         </span>
         {fatigueUsed > 0 && (
-          <span className={styles.crewFatigue}>Fat {fatigueUsed}/{crew.stats.endurance}</span>
+          <span className={styles.crewFatigue}
+            data-tooltip={`Fatigue ${fatigueUsed}/${crew.stats.endurance}. At max, crew become exhausted and cannot slot.`}>
+            Fat {fatigueUsed}/{crew.stats.endurance}
+          </span>
         )}
       </div>
       {crew.traits.length > 0 && (
         <div className={styles.crewTraits}>
           {crew.traits.map(t => (
-            <span key={t.id} className={`${styles.traitPill} ${t.isNegative ? styles.traitNeg : styles.traitPos}`}>
+            <span key={t.id}
+              className={`${styles.traitPill} ${t.isNegative ? styles.traitNeg : styles.traitPos}`}
+              data-tooltip={t.description}>
               {t.name}
-              <InfoBtn text={t.description} />
             </span>
           ))}
         </div>
       )}
-      {crew.backstory && <div className={styles.crewBackstory}>{crew.backstory}</div>}
+      {crew.backstory && <div className={styles.crewBackstory} data-tooltip="Backstory">{crew.backstory}</div>}
       {crew.isDead && <div className={styles.deadBanner}>DEAD</div>}
       {crew.isPanicked && <div className={styles.panicBanner}>PANICKED</div>}
     </div>
@@ -202,7 +198,7 @@ function FormationCard({ formation, isLastUsed }: { formation: FormationRender; 
             key={i}
             className={styles.slotDot}
             style={{ background: SLOT_COLORS[s.typeName] ?? '#666' }}
-            title={`${s.typeName} [${s.connectedLanes.join(',')}]${s.isDouble ? ' ×2' : ''}${s.slottedCrewId ? ' (crew)' : ''}`}
+            data-tooltip={`${s.typeName} slot — lanes: [${s.connectedLanes.join(', ')}]${s.isDouble ? ' ×2 output' : ''}${s.slottedCrewId ? '\n(crew slotted)' : ''}`}
           >
             {s.slottedCrewId ? '●' : s.isDouble ? '2' : ''}
           </div>
@@ -220,17 +216,18 @@ function SystemCard({ sys }: { sys: { name: string; level: number; modSlots: num
     <div className={styles.systemCard}>
       <div className={styles.systemHeader}>
         <span className={styles.systemName}>{sys.name}</span>
-        <span className={styles.systemLevel}>Lv {sys.level}</span>
+        <span className={styles.systemLevel} data-tooltip="System level — upgradeable at shops">Lv {sys.level}</span>
       </div>
-      <div className={styles.systemValue}>
+      <div className={styles.systemValue} data-tooltip={`${sys.primaryValueLabel}: current value for this system`}>
         {sys.primaryValueLabel}: {sys.primaryValue}
       </div>
       {sys.installedMods.length > 0 && (
         <div className={styles.systemMods}>
           {sys.installedMods.map(m => (
-            <span key={m.instanceId} className={`${styles.modDot} ${m.isGlitch ? styles.glitchDot : ''}`}>
+            <span key={m.instanceId}
+              className={`${styles.modDot} ${m.isGlitch ? styles.glitchDot : ''}`}
+              data-tooltip={`${m.name}${m.isGlitch ? ' ⚠ Glitch' : ''}\n${m.description}`}>
               {m.name.substring(0, 12)}
-              <InfoBtn text={`${m.name}: ${m.description}`} />
             </span>
           ))}
         </div>

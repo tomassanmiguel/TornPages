@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { PrologueCrewRight, PlayerAction } from '../../api/types';
 import { PrologueCrewAttrAction, ConfirmPrologueCrewAction } from '../../api/types';
 import styles from './shared.module.css';
@@ -18,8 +18,6 @@ const ABILITY_COLORS: Record<string, string> = {
 export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
   const opts = page.options;
   const sel = page.selections;
-  const [expandedTrait, setExpandedTrait] = useState<number | null>(null);
-
   // Ability is always the forced type — auto-select index 0 silently
   useEffect(() => {
     if (!page.isCommitted_ && (sel === null || sel.abilityIndex < 0)) {
@@ -103,6 +101,7 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
             className={`${styles.optionCard} ${sel?.statIndex === i ? styles.selected : ''}`}
             onClick={() => dispatch(PrologueCrewAttrAction('stats', i))}
             disabled={disabled}
+            data-tooltip={`Res: Shield output\nInt: Hack output\nCha: Boost/Barrier/Heal output\nEnd: slots before exhaustion`}
           >
             <span style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <span>Res {s.resolve}</span>
@@ -117,31 +116,19 @@ export function PrologueCrewPage({ page, dispatch, disabled }: Props) {
       {/* Trait */}
       <AttrSection title="Trait">
         {opts.traitOptions.map((t, i) => (
-          <div key={i}>
-            <button
-              className={`${styles.optionCard} ${sel?.traitIndex === i ? styles.selected : ''}`}
-              onClick={() => dispatch(PrologueCrewAttrAction('trait', i))}
-              disabled={disabled}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <span>
-                {t ? (
-                  <span style={{ color: t.isNegative ? 'var(--red)' : 'var(--green)' }}>{t.name}</span>
-                ) : (
-                  <span style={{ color: 'var(--text-muted)' }}>No trait</span>
-                )}
-              </span>
-              {t && (
-                <button
-                  className={styles.infoBtn}
-                  onClick={e => { e.stopPropagation(); setExpandedTrait(expandedTrait === i ? null : i); }}
-                >i</button>
-              )}
-            </button>
-            {t && expandedTrait === i && (
-              <div className={styles.infoExpand}>{t.description}</div>
+          <button
+            key={i}
+            className={`${styles.optionCard} ${sel?.traitIndex === i ? styles.selected : ''}`}
+            onClick={() => dispatch(PrologueCrewAttrAction('trait', i))}
+            disabled={disabled}
+            data-tooltip={t ? `${t.isNegative ? '⚠ Negative trait\n' : ''}${t.description}` : 'No trait — no bonus or penalty'}
+          >
+            {t ? (
+              <span style={{ color: t.isNegative ? 'var(--red)' : 'var(--green)' }}>{t.name}</span>
+            ) : (
+              <span style={{ color: 'var(--text-muted)' }}>No trait</span>
             )}
-          </div>
+          </button>
         ))}
       </AttrSection>
 
