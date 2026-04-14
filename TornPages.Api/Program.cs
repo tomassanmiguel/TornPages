@@ -25,8 +25,21 @@ var app = builder.Build();
 
 app.UseCors();
 
-// Local file used to persist the ping log across server restarts
-var logPath = Path.Combine(AppContext.BaseDirectory, "ping-log.json");
+// Log file sits at the repo root so it's easy to find regardless of build config.
+// Walk up from the project directory until we find the .sln file.
+static string FindRepoRoot()
+{
+    var dir = new DirectoryInfo(AppContext.BaseDirectory);
+    while (dir != null)
+    {
+        if (dir.GetFiles("*.slnx").Length > 0 || dir.GetFiles("*.sln").Length > 0)
+            return dir.FullName;
+        dir = dir.Parent;
+    }
+    return AppContext.BaseDirectory; // fallback
+}
+
+var logPath = Path.Combine(FindRepoRoot(), "ping-log.json");
 
 // Append a ping entry to the local log file (fire-and-forget, non-blocking)
 void AppendToLogFile(PingLogEntry entry)

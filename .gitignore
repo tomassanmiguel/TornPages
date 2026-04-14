@@ -27,3 +27,6 @@ client/.env.local
 # OS
 .DS_Store
 Thumbs.db
+
+# Ping log (local server data, not for source control)
+ping-log.json
