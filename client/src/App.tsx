@@ -23,7 +23,7 @@ function latencyLabel(ms: number): string {
   return 'Poor';
 }
 
-function formatCopyText(results: PingResult[]): string {
+function formatCopyText(results: PingResult[], name: string): string {
   const successful = results.filter((r) => r.ok);
   if (successful.length === 0) return 'No successful pings.';
 
@@ -35,6 +35,7 @@ function formatCopyText(results: PingResult[]): string {
 
   return [
     `Torn Pages Latency Test — ${new Date().toLocaleString()}`,
+    `Tester: ${name || 'Anonymous'}`,
     `Server: ${apiUrl}`,
     `Pings: ${successful.length}`,
     `Avg: ${avg}ms  |  Min: ${min}ms  |  Max: ${max}ms`,
@@ -47,6 +48,7 @@ export default function App() {
   const [serverMessage, setServerMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [name, setName] = useState(() => localStorage.getItem('tester-name') ?? '');
 
   const addResult = useCallback((result: PingResult) => {
     setResults((prev) => [result, ...prev].slice(0, MAX_HISTORY));
@@ -71,7 +73,8 @@ export default function App() {
   const ping = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, durationMs } = await apiClient.postAction({ actionType: 'Ping' });
+      const payload = name.trim() ? { note: name.trim() } : undefined;
+      const { data, durationMs } = await apiClient.postAction({ actionType: 'Ping', payload });
       setServerMessage(data.message);
       addResult({ timestamp: new Date().toLocaleTimeString(), durationMs, ok: true });
     } catch (err: unknown) {
@@ -80,13 +83,13 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [addResult]);
+  }, [addResult, name]);
 
   const copyResults = useCallback(async () => {
-    await navigator.clipboard.writeText(formatCopyText(results));
+    await navigator.clipboard.writeText(formatCopyText(results, name));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [results]);
+  }, [results, name]);
 
   const successful = results.filter((r) => r.ok);
   const durations = successful.map((r) => r.durationMs);
@@ -103,6 +106,23 @@ export default function App() {
       </header>
 
       <main className={styles.main}>
+        {/* Name input */}
+        <div className={styles.nameRow}>
+          <label className={styles.nameLabel} htmlFor="tester-name">Your name</label>
+          <input
+            id="tester-name"
+            className={styles.nameInput}
+            type="text"
+            placeholder="Anonymous"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              localStorage.setItem('tester-name', e.target.value);
+            }}
+            maxLength={40}
+          />
+        </div>
+
         {/* Big latency indicator */}
         <div className={styles.latencyCard}>
           {latest !== null ? (

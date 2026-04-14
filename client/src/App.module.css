@@ -29,6 +29,42 @@
   gap: 1.5rem;
 }
 
+/* Name input */
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nameLabel {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a7a6a;
+  white-space: nowrap;
+}
+
+.nameInput {
+  flex: 1;
+  background: #252018;
+  border: 1px solid #3a3028;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #e8dcc8;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.nameInput::placeholder {
+  color: #5a4a38;
+}
+
+.nameInput:focus {
+  border-color: #c4a96a;
+}
+
 /* Big latency display */
 .latencyCard {
   background: #252018;
