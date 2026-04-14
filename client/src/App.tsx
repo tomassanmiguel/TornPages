@@ -77,6 +77,8 @@ export default function App() {
       const { data, durationMs } = await apiClient.postAction({ actionType: 'Ping', payload });
       setServerMessage(data.message);
       addResult({ timestamp: new Date().toLocaleTimeString(), durationMs, ok: true });
+      // Fire-and-forget: record the client-measured round-trip time in the server log
+      apiClient.postAction({ actionType: 'PingAck', payload: { durationMs: String(durationMs) } }).catch(() => {});
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       addResult({ timestamp: new Date().toLocaleTimeString(), durationMs: 0, ok: false, error: message });

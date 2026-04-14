@@ -25,5 +25,6 @@ public record PlayerAction(
 public record PingLogEntry(
     int Index,
     DateTimeOffset Timestamp,
-    string? Note = null
+    string? Note = null,
+    int? DurationMs = null
 );

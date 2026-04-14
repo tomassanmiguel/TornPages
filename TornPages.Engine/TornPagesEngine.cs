@@ -36,6 +36,16 @@ public class TornPagesEngine
             );
         }
 
+        if (action.ActionType == "PingAck")
+        {
+            if (_pingLog.Count > 0
+                && int.TryParse(action.Payload?.GetValueOrDefault("durationMs"), out var ms))
+            {
+                _pingLog[^1] = _pingLog[^1] with { DurationMs = ms };
+            }
+            return GetState();
+        }
+
         throw new EngineException($"Unknown action type: {action.ActionType}");
     }
 
