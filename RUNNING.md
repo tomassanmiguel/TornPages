@@ -96,18 +96,16 @@ This prints a Tunnel ID (a UUID) and saves a credentials JSON to `C:\Users\tsanm
 Create `C:\Users\tsanm\.cloudflared\config.yml` with this content, replacing the placeholders:
 
 ```yaml
-tunnel: YOUR_TUNNEL_ID_HERE
-credentials-file: C:\Users\tsanm\.cloudflared\YOUR_TUNNEL_ID_HERE.json
+tunnel: 47cb0892-aa21-4b7f-bfe2-f3eb44881b4e
+credentials-file: C:\Users\tsanm\.cloudflared\47cb0892-aa21-4b7f-bfe2-f3eb44881b4e.json
 
 ingress:
-  - hostname: api.yourdomain.com
+  - hostname: api.torn-pages.com
     service: http://localhost:5000
   - service: http_status:404
 ```
 
-Replace:
-- `YOUR_TUNNEL_ID_HERE` — the UUID from Step 3 (appears twice)
-- `api.yourdomain.com` — the subdomain you want (e.g. `api.tornpages.dev`)
+The config file is already written at `C:\Users\tsanm\.cloudflared\config.yml` with the correct tunnel ID and credentials path.
 
 **Step 5 — Create the DNS record**
 
@@ -121,7 +119,7 @@ This creates a CNAME record in your Cloudflare DNS dashboard automatically.
 
 In your Vercel project settings → Environment Variables, set:
 ```
-VITE_API_URL = https://api.yourdomain.com
+VITE_API_URL = https://api.torn-pages.com
 ```
 
 Redeploy once. You never need to change this again.
