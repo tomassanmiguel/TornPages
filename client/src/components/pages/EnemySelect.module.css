@@ -1,0 +1,43 @@
+.weaponGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.weaponCard {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.weaponCard:hover:not(.locked) {
+  background: #22223a;
+  border-color: var(--border2);
+}
+
+.weaponCard.selected {
+  background: #1a2a3a;
+  border-color: var(--accent2);
+}
+
+.weaponCard.locked {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.weaponName {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.weaponEffects {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}

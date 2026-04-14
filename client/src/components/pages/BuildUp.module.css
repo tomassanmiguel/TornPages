@@ -1,0 +1,45 @@
+.dtBar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 1.1rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+}
+
+.dtLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.dtValue {
+  font-size: 1.4rem;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.dtDivider { color: var(--text-muted); }
+
+.dtThreshold {
+  color: var(--text-dim);
+  font-size: 1rem;
+}
+
+.selectedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.selectedTag {
+  font-size: 0.75rem;
+  padding: 0.2em 0.5em;
+  background: #1a2a1a;
+  border: 1px solid #2a4a2a;
+  color: var(--green);
+  border-radius: 3px;
+}

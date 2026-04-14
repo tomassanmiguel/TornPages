@@ -1,37 +1,41 @@
+import type { RenderState, PlayerAction, ProfileSummary } from './types';
+
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
 
-export interface RenderState {
-  message: string;
-  pingCount: number;
-  pageType: string;
-}
-
-export interface PlayerAction {
-  actionType: string;
-  payload?: Record<string, string>;
-}
-
-async function request<T>(path: string, options?: RequestInit): Promise<{ data: T; durationMs: number }> {
-  const start = performance.now();
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });
-  const durationMs = Math.round(performance.now() - start);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error ?? 'Request failed');
+    throw new Error((err as { error?: string }).error ?? 'Request failed');
   }
-  const data: T = await res.json();
-  return { data, durationMs };
+  return res.json() as Promise<T>;
 }
 
-export const apiClient = {
-  getState: () => request<RenderState>('/state'),
-  postAction: (action: PlayerAction) =>
-    request<RenderState>('/action', {
+export const api = {
+  // Profile management
+  listProfiles: () => request<{ profiles: ProfileSummary[] }>('/profiles'),
+  createProfile: (profileId: string, name: string, seed?: number) =>
+    request<ProfileSummary>('/profiles', {
+      method: 'POST',
+      body: JSON.stringify({ profileId, name, seed }),
+    }),
+  deleteProfile: (profileId: string) =>
+    request<{ deleted: string }>(`/profiles/${profileId}`, { method: 'DELETE' }),
+
+  // Game state
+  getState: (profileId: string) =>
+    request<RenderState>(`/profiles/${profileId}/state`),
+  getHistory: (profileId: string, pageIndex: number) =>
+    request<RenderState>(`/profiles/${profileId}/history/${pageIndex}`),
+  postAction: (profileId: string, action: PlayerAction) =>
+    request<RenderState>(`/profiles/${profileId}/action`, {
       method: 'POST',
       body: JSON.stringify(action),
     }),
-  getHistory: (pageIndex: number) => request<RenderState>(`/history/${pageIndex}`),
+
+  // Dev
+  health: () => request<{ status: string }>('/health'),
 };

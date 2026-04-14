@@ -1,0 +1,370 @@
+.leftPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+/* Ship status */
+.shipStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.statusRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.statusBar {
+  flex: 1;
+}
+
+.statusBarLabel {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.statusBarBg {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.statusBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.statusRow2 {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.statItem {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.25rem;
+}
+
+/* Crew */
+.crewGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.crewCard {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  position: relative;
+}
+
+.crewCard.dead {
+  opacity: 0.45;
+  border-color: #3a2020;
+}
+
+.crewCard.panicked {
+  border-color: #6a4a20;
+}
+
+.crewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+}
+
+.crewName { font-weight: bold; color: var(--accent); font-size: 0.88rem; }
+.crewRace { font-size: 0.7rem; color: var(--text-muted); }
+
+.crewStats {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+
+.crewBottom {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.crewHp { font-size: 0.72rem; color: var(--text-dim); }
+
+.crewAbility {
+  font-size: 0.7rem;
+  padding: 0.1em 0.4em;
+  border-radius: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+}
+
+.abilityShield { border-color: #4090d0; color: #4090d0; }
+.abilityHack { border-color: #40d090; color: #40d090; }
+.abilityCharge { border-color: #d09040; color: #d09040; }
+.abilityBoost { border-color: #d0d040; color: #d0d040; }
+.abilityBarrier { border-color: #9040d0; color: #9040d0; }
+.abilityHeal { border-color: #40c060; color: #40c060; }
+.abilityFusion { border-color: #d04090; color: #d04090; }
+
+.crewEl {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.crewEl.exhausted {
+  color: var(--red);
+  font-weight: bold;
+}
+
+.crewFatigue {
+  font-size: 0.72rem;
+  color: var(--orange);
+}
+
+.crewTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.traitPill {
+  font-size: 0.68rem;
+  padding: 0.1em 0.4em;
+  border-radius: 2px;
+  cursor: help;
+}
+
+.traitPos {
+  background: #1a2a1a;
+  border: 1px solid #2a4a2a;
+  color: #70a070;
+}
+
+.traitNeg {
+  background: #2a1a1a;
+  border: 1px solid #4a2a2a;
+  color: #c07070;
+}
+
+.deadBanner, .panicBanner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  padding: 0.2em 0.6em;
+}
+
+.deadBanner {
+  color: var(--red);
+  border: 1px solid var(--red);
+  background: rgba(20,0,0,0.8);
+}
+
+.panicBanner {
+  color: var(--orange);
+  border: 1px solid var(--orange);
+  background: rgba(20,10,0,0.8);
+}
+
+/* Formations */
+.formationList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.formationCard {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+}
+
+.formationCard.lastUsed {
+  border-color: var(--accent2);
+}
+
+.formationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.3rem;
+}
+
+.formationName { font-size: 0.82rem; color: var(--text); }
+.formationRarity { font-size: 0.68rem; }
+
+.formationSlots {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.slotDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  cursor: help;
+}
+
+.formationPassive {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Systems */
+.systemsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.systemCard {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+}
+
+.systemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.2rem;
+}
+
+.systemName { font-size: 0.8rem; color: var(--accent); }
+.systemLevel { font-size: 0.7rem; color: var(--text-muted); }
+
+.systemValue {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+
+.systemMods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 0.2rem;
+}
+
+.modDot {
+  font-size: 0.65rem;
+  padding: 0.1em 0.35em;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text-dim);
+  cursor: help;
+}
+
+.glitchDot {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.systemSlots {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Deployables */
+.deployableList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.deployableItem {
+  font-size: 0.75rem;
+  padding: 0.25em 0.6em;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: help;
+  color: var(--accent2);
+}
+
+/* Mod storage */
+.modList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.modItem {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  padding: 0.2em 0.5em;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: help;
+}
+
+.modItem.glitch {
+  border-color: #5a1a1a;
+  color: var(--red);
+}
+
+.modName { color: var(--text); }
+.modSize { color: var(--text-muted); font-size: 0.65rem; }

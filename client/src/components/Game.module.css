@@ -1,0 +1,168 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.loading, .error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--text-dim);
+}
+.error button {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+.errorDetail { font-size: 0.85rem; color: var(--red); }
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Top bar */
+.topBar {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+  min-height: 40px;
+}
+
+.exitBtn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+}
+.exitBtn:hover { color: var(--text); }
+
+.topCenter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.historyBadge {
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.returnBtn {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+.returnBtn:hover { color: var(--text); }
+
+.spinnerSmall {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+.errorBadge {
+  color: var(--red);
+  font-size: 0.8rem;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topRight {
+  display: flex;
+  align-items: center;
+}
+
+.pageNav {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pageNavDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.pageNavDot:hover { background: var(--text-dim); }
+.pageNavDotActive { background: var(--accent) !important; }
+
+/* Book spread */
+.spread {
+  flex: 1;
+  display: flex;
+  padding: 1.5rem;
+  gap: 0;
+  overflow: hidden;
+}
+
+.leftPage, .rightPage {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.leftPage {
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.rightPage {
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+}
+
+.spine {
+  width: 4px;
+  background: linear-gradient(180deg, #1a1a24 0%, #0a0a10 50%, #1a1a24 100%);
+  border: 1px solid #111;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .spread {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+  .leftPage, .rightPage {
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .spine { width: 100%; height: 4px; }
+}

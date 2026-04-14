@@ -1,12 +1,17 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TornPages.Engine;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Single engine instance for the lifetime of the server
 builder.Services.AddSingleton<TornPagesEngine>();
 
-// CORS — origins configured in appsettings so they can vary by environment
+builder.Services.ConfigureHttpJsonOptions(opts =>
+{
+    opts.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+// CORS
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedOrigins")
     .Get<string[]>() ?? [];
@@ -22,54 +27,60 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 app.UseCors();
 
-// Log file sits at the repo root so it's easy to find regardless of build config.
-// Walk up from the project directory until we find the .sln file.
-static string FindRepoRoot()
+// ─── Profile list ──────────────────────────────────────────────────────────────
+
+// GET /profiles — list all profiles (by in-memory run IDs)
+app.MapGet("/profiles", (TornPagesEngine engine) =>
 {
-    var dir = new DirectoryInfo(AppContext.BaseDirectory);
-    while (dir != null)
-    {
-        if (dir.GetFiles("*.slnx").Length > 0 || dir.GetFiles("*.sln").Length > 0)
-            return dir.FullName;
-        dir = dir.Parent;
-    }
-    return AppContext.BaseDirectory; // fallback
-}
+    // In Phase 2 this could hit a database; for now profiles = in-memory runs
+    return Results.Ok(new { profiles = engine.ListProfiles() });
+});
 
-var logPath = Path.Combine(FindRepoRoot(), "ping-log.json");
-
-// Append a ping entry to the local log file (fire-and-forget, non-blocking)
-void AppendToLogFile(PingLogEntry entry)
+// POST /profiles — create a new profile and optionally start a run
+app.MapPost("/profiles", (CreateProfileRequest req, TornPagesEngine engine) =>
 {
-    try
-    {
-        var line = JsonSerializer.Serialize(entry) + Environment.NewLine;
-        File.AppendAllText(logPath, line);
-    }
-    catch
-    {
-        // Log write failure is non-fatal
-    }
-}
+    var profileId = req.ProfileId ?? Guid.NewGuid().ToString();
+    var seed = req.Seed ?? new Random().Next();
+    var difficulty = req.Difficulty ?? DifficultyLevel.Normal;
+    var run = engine.CreateRun(profileId, seed, difficulty);
+    return Results.Ok(new ProfileSummary(
+        ProfileId: profileId,
+        Name: req.Name ?? profileId,
+        HasActiveRun: true,
+        ChapterNumber: run.Pages[run.CurrentPageIndex].Left.ChapterNumber));
+});
 
-// GET /state — returns current RenderState
-app.MapGet("/state", (TornPagesEngine engine) =>
-    Results.Ok(engine.GetState()));
+// DELETE /profiles/{id} — delete a profile and its run
+app.MapDelete("/profiles/{id}", (string id, TornPagesEngine engine) =>
+{
+    engine.DeleteRun(id);
+    return Results.Ok(new { deleted = id });
+});
 
-// POST /action — applies a PlayerAction, returns updated RenderState
-app.MapPost("/action", (PlayerAction action, TornPagesEngine engine) =>
+// ─── Game state ───────────────────────────────────────────────────────────────
+
+// GET /profiles/{id}/state — current page render
+app.MapGet("/profiles/{id}/state", (string id, TornPagesEngine engine) =>
 {
     try
     {
-        var state = engine.ApplyAction(action);
-        if (action.ActionType == "Ping")
-        {
-            var entry = engine.GetPingLog()[^1];
-            AppendToLogFile(entry);
-        }
+        var state = engine.GetState(id);
+        return Results.Ok(state);
+    }
+    catch (EngineException ex)
+    {
+        return Results.NotFound(new { error = ex.Message });
+    }
+});
+
+// GET /profiles/{id}/history/{pageIndex} — historical page render
+app.MapGet("/profiles/{id}/history/{pageIndex:int}", (string id, int pageIndex, TornPagesEngine engine) =>
+{
+    try
+    {
+        var state = engine.GetHistoricalState(id, pageIndex);
         return Results.Ok(state);
     }
     catch (EngineException ex)
@@ -78,12 +89,49 @@ app.MapPost("/action", (PlayerAction action, TornPagesEngine engine) =>
     }
 });
 
-// GET /pings — returns the in-memory ping log for this server session
-app.MapGet("/pings", (TornPagesEngine engine) =>
-    Results.Ok(engine.GetPingLog()));
+// POST /profiles/{id}/action — apply a player action
+app.MapPost("/profiles/{id}/action", (string id, PlayerAction action, TornPagesEngine engine) =>
+{
+    try
+    {
+        var state = engine.ApplyAction(id, action);
+        return Results.Ok(state);
+    }
+    catch (EngineException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
 
-// GET /history/{pageIndex} — returns frozen RenderState for a historical page
-app.MapGet("/history/{pageIndex:int}", (int pageIndex, TornPagesEngine engine) =>
-    Results.Ok(engine.GetHistoricalState(pageIndex)));
+// ─── Dev / diagnostics ────────────────────────────────────────────────────────
+
+// GET /health
+app.MapGet("/health", () => Results.Ok(new { status = "ok", timestamp = DateTimeOffset.UtcNow }));
+
+// GET /profiles/{id}/run-json — raw serialized run (for debugging)
+app.MapGet("/profiles/{id}/run-json", (string id, TornPagesEngine engine) =>
+{
+    try
+    {
+        var json = engine.SerializeRun(id);
+        return Results.Content(json, "application/json");
+    }
+    catch (EngineException ex)
+    {
+        return Results.NotFound(new { error = ex.Message });
+    }
+});
 
 app.Run();
+
+// ─── Request types ────────────────────────────────────────────────────────────
+
+public record CreateProfileRequest(
+    string? ProfileId = null,
+    string? Name = null,
+    int? Seed = null,
+    DifficultyLevel? Difficulty = null);
